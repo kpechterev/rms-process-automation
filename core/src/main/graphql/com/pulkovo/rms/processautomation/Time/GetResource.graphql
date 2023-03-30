@@ -1,0 +1,13 @@
+query GetResource($subdivision: [ID!]){
+    resources(filter: {
+        in: {
+            subdivisionIds: $subdivision
+        }
+    }) {
+        resource {
+            ... on IResource{
+                id
+            }
+        }
+    }
+}

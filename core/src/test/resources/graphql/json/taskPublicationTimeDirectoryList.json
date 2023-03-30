@@ -1,0 +1,20 @@
+{
+  "data": {
+    "taskPublicationTimeDirectoryList": [
+      {
+        "id": "id1",
+        "subdivision": {
+          "id": "sub1"
+        },
+        "publicationTimeDelta": 3600
+      },
+      {
+        "id": "id2",
+        "subdivision": {
+          "id": "sub2"
+        },
+        "publicationTimeDelta": 7200
+      }
+    ]
+  }
+}

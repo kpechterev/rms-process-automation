@@ -1,0 +1,82 @@
+logging:
+  level:
+    root: INFO
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name:
+  graphql:
+    schema:
+      introspection:
+        enabled: true
+      printer:
+        enabled: true
+      locations:
+        - "classpath:graphql/**"
+    graphiql:
+      enabled: true
+
+graphql:
+  servlet:
+    tracing-enabled: false
+    actuator-metrics: true
+    mapping: /graphql
+    enabled: true
+    corsEnabled: true
+    cors:
+      allowed-origins: "*"
+      allowed-methods: POST
+    subscriptions:
+      websocket:
+        path: /subscriptions
+    exception-handlers-enabled: true
+    contextSetting: PER_REQUEST_WITH_INSTRUMENTATION
+    async-timeout: 120000
+
+graphiql:
+  mapping: /graphiql
+  endpoint:
+    graphql: /graphql
+    subscriptions: /subscription
+  subscriptions:
+    timeout: 30
+    reconnect: false
+  enabled: true
+  pageTitle: GraphiQL
+  cdn:
+    enabled: true
+    version: latest
+  headers:
+    Authorization: "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0YXNrX21hbmFnZXIiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9HUi1TUlRGLVVzZXJBdXRoQ2VydCJ9LHsiYXV0aG9yaXR5IjoiUk9MRV9HQS1KSVJBLVNFUlYifSx7ImF1dGhvcml0eSI6IlJPTEVfdXNlciJ9XSwiaWF0IjoxNjExMjYzNjIwLCJleHAiOjMxMzMzMTY2MjgwMH0.SvlnJHrJ5rB9ohq8bO-BdWjIY9H9sPXeNCAmwtcR2oQ"
+
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      simple:
+        enabled: true
+
+
+taskManager:
+  api:
+    graphQL:
+      url: "http://api.dev.apps.okd.mrms.ncg-swdevelopment.ru/api/graphql"
+      token: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0YXNrX21hbmFnZXIiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9HUi1TUlRGLVVzZXJBdXRoQ2VydCJ9LHsiYXV0aG9yaXR5IjoiUk9MRV9HQS1KSVJBLVNFUlYifSx7ImF1dGhvcml0eSI6IlJPTEVfdXNlciJ9XSwiaWF0IjoxNjExMjYzNjIwLCJleHAiOjMxMzMzMTY2MjgwMH0.SvlnJHrJ5rB9ohq8bO-BdWjIY9H9sPXeNCAmwtcR2oQ"
+      readTimeout: 60000  # in milliseconds
+      retry:
+        maxAttempts: 3
+        backoff:
+          delay: 600000 # in milliseconds
+

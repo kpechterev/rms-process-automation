@@ -1,0 +1,7 @@
+include:
+- project: 'rms/common-ci'
+  ref: main
+  file: '/common-workflow.yaml'
+- project: 'rms/common-ci'
+  ref:  offline-ci
+  file: '/common-mrms-backend.yaml'

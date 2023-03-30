@@ -1,0 +1,28 @@
+{
+  "data": {
+    "task": [
+    {
+      "id": "id1",
+      "scheduledStart": "2022-03-27T14:29:51.615+03:00",
+      "resource": {
+        "resourceType": "Employee",
+        "resource": {
+          "__typename": "Employee",
+          "id": "id_1"
+        }
+      }
+    },
+      {
+        "id": "id2",
+        "scheduledStart": "2022-04-27T14:30:54.627+04:00",
+        "resource": {
+          "resourceType": "Pilot",
+          "resource": {
+            "__typename": "Pilot",
+            "id": "id_2"
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+query GetTimePublishList{
+     taskPublicationTimeDirectoryList {
+        id
+        subdivision {
+            id
+        }
+        publicationTimeDelta
+    }
+}

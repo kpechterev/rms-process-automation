@@ -1,0 +1,18 @@
+{
+  "data": {
+    "resources": [
+      {
+        "resource": {
+          "__typename": "Employee",
+          "id": "586352"
+        }
+      },
+      {
+        "resource": {
+          "__typename": "Pilot",
+          "id": "107289"
+        }
+      }
+    ]
+  }
+}

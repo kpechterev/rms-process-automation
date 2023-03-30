@@ -1,0 +1,19 @@
+query GetTask($filter: TaskFilter){
+    task: tasks(filter: $filter) {
+        id
+        scheduledStart
+        resource {
+            resourceType
+            resource {
+                ... on IResource {
+                    id
+                }
+            }
+        }
+    }
+}
+
+
+
+
+

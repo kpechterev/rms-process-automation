@@ -1,0 +1,109 @@
+plugins {
+    id 'idea'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '2.7.5' apply false
+    id 'com.github.hierynomus.license' version '0.16.1'
+    id 'org.ajoberstar.grgit' version '5.0.0'
+    id 'com.bmuschko.docker-spring-boot-application' version '7.2.0' apply false
+}
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = '7.4.2'
+}
+
+group 'com.pulkovo.rms.services'
+
+allprojects {
+    version '0.3.0-SNAPSHOT'
+
+    ext {
+        javaVersion = 17
+        springCloudVersion = '2021.0.4'
+        baseContainerImage = 'openjdk:17.0.2-oracle'
+        lombokVersion = '1.18.24'
+        baseContainerImage = "${registryProxyUrl}/openjdk:17.0.2-oracle"
+    }
+
+   idea {
+        project {
+            jdkName = project.ext.javaVersion
+            languageLevel = project.ext.javaVersion
+            vcs = 'Git'
+        }
+    }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile){
+            options.compilerArgs << "-Xlint:deprecation"
+        }
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.github.hierynomus.license'
+
+    sourceCompatibility = project.ext.javaVersion
+    compileJava {
+        options.release = project.ext.javaVersion
+    }
+
+    license {
+        ignoreFailures = true
+        header = file("${rootProject.projectDir}/LICENSE.txt")
+
+        includes(['**/*.java', '**/*.sql'])
+        excludes(['**/*graphql*'])
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            showStandardStreams = true
+            events "passed", "skipped", "failed"
+        }
+    }
+
+    repositories {
+        if (registryUrl) {
+            maven {
+                allowInsecureProtocol true
+                url "${registryUrl}/repository/maven-public"
+            }
+            maven {
+                allowInsecureProtocol true
+                url "${registryUrl}/repository/com.pulkovo.rms.services.releases"
+            }
+            maven {
+                allowInsecureProtocol true
+                url "${registryUrl}/repository/com.pulkovo.rms.services.snapshots"
+            }
+        }
+    }
+
+    publishing {
+        if ((project.hasProperty('mavenUser') || System.env.MAVEN_USER) &&
+                (project.hasProperty('mavenPassword') || System.env.MAVEN_PASSWORD)) {
+            repositories {
+                maven {
+                    String baseRepositoryUrl = "${registryUrl}/repository/${rootProject.group}"
+                    url = "${baseRepositoryUrl}.${version.endsWith('SNAPSHOT') ? 'snapshots' : 'releases'}/"
+
+                    allowInsecureProtocol = true
+                    credentials {
+                        username project.hasProperty('mavenUser') ? mavenUser as String : System.env.MAVEN_USER
+                        password project.hasProperty('mavenPassword') ? mavenPassword as String : System.env.MAVEN_PASSWORD
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }

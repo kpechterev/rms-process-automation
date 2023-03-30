@@ -1,0 +1,10 @@
+task_manager:
+  api:
+    graphQL:
+      url: "http://localhost:${wiremock.server.port}/api/graphql"
+      token: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0YXNrX21hbmFnZXIiLCJhdXRob3JpdGllcyI6W3siYXV0aG9yaXR5IjoiUk9MRV9HUi1TUlRGLVVzZXJBdXRoQ2VydCJ9LHsiYXV0aG9yaXR5IjoiUk9MRV9HQS1KSVJBLVNFUlYifSx7ImF1dGhvcml0eSI6IlJPTEVfdXNlciJ9XSwiaWF0IjoxNjExMjYzNjIwLCJleHAiOjMxMzMzMTY2MjgwMH0.SvlnJHrJ5rB9ohq8bO-BdWjIY9H9sPXeNCAmwtcR2oQ"
+spring:
+  config:
+    activate:
+      on-profile: test
+

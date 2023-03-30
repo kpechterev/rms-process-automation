@@ -1,0 +1,416 @@
+asyncapi: 2.3.0
+
+info:
+  title: Flight Service
+  version: 1.0.0
+  description: Flight service
+
+defaultContentType: application/json
+
+servers:
+  local:
+    url: 'localhost:9092'
+    description: local server
+    protocol: kafka
+
+channels:
+  rms.flight.update-notifications.json.0:
+    publish:
+      message:
+        $ref: '#/components/messages/flight-updates'
+
+components:
+
+  messages:
+    flight-updates:
+      name: flight-updates
+      contentType: application/json
+      traits:
+        - $ref: '#/components/messageTraits/CommonHeaders'
+      payload:
+        $ref: '#/components/schemas/FlightUpdate'
+
+  messageTraits:
+    CommonHeaders:
+      headers:
+        $ref: '#/components/schemas/CommonHeaderSet'
+
+  schemas:
+
+    Id:
+      type: string
+      description: Unique ID
+      example: 6F9619FF-8B86-D011-B42D-00CF4FC964FF
+
+    ProducerName:
+      description: Name of publisher application module
+      type: string
+      maxLength: 64
+      example: hrm-gateway
+
+    Version:
+      type: string
+      description: Version number
+      example: 1.2.3
+
+    MomentInTime:
+      type: string
+      format: date-time
+      description: Date/time in UTC timezone
+
+    AircraftRef:
+      type: object
+      properties:
+        tailNumber:
+          type: string
+          example: "VPBQB"
+
+    AircraftTypeRef:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+
+    AirlineRef:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+
+    FlightAlert:
+      type: object
+      required:
+        - category
+        - code
+        - severity
+      properties:
+        category:
+          type: string
+          example: "1"
+        code:
+          type: string
+          example: "AMVT01"
+        severity:
+          type: string
+          example: "2"
+
+    Belt:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "1"
+
+    AirportRef:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+
+    FlightSpecificationUpdate:
+      type: object
+      properties:
+        arrivalAirport:
+          $ref: '#/components/schemas/AirportRef'
+        departureAirport:
+          $ref: '#/components/schemas/AirportRef'
+
+    FlightHandlingAgent:
+      type: object
+      properties:
+        category:
+          type: string
+          example: "PRIMARY"
+        name:
+          type: string
+          example: "NCG"
+
+    FlightLoadInfo:
+      type: object
+      required:
+        - qualifier
+        - loadType
+      properties:
+        qualifier:
+          type: string
+          example: "Loaded"
+        loadType:
+          type: string
+          example: "Total"
+        value:
+          type: integer
+          example: 485
+
+    FlightOperationalTime:
+      type: object
+      required:
+        - qualifier
+        - type
+        - value
+      properties:
+        qualifier:
+          type: string
+          example: "ONB"
+        type:
+          type: string
+          example: "ACT"
+        value:
+          $ref: '#/components/schemas/MomentInTime'
+
+    ParkingSpotRef:
+      type: object
+      properties:
+        number:
+          type: string
+          example: "P1"
+
+    FlightPassengerInfo:
+      type: object
+      required:
+        - qualifier
+        - cabinClass
+        - passengerType
+      properties:
+        qualifier:
+          type: string
+          example: "Boarded"
+        cabinClass:
+          type: string
+          example: "ALL"
+        passengerType:
+          type: string
+          example: "Adult"
+        value:
+          type: integer
+          example: 10
+
+    FlightBillingStatus:
+      type: string
+      enum:
+        - BIL
+
+    FlightServiceTypeRef:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "J"
+
+    SpecialEmphasisRef:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "K"
+
+    FlightTrafficType:
+      type: string
+      enum:
+        - D
+        - I
+
+    FlightRef:
+      type: object
+      properties:
+        numId:
+          type: string
+          example: "40176938187"
+
+    PassengerCategory:
+      type: string
+      enum:
+        - BLND
+        - DEAF
+        - DPNA
+        - STRC
+        - UM
+        - WCHC
+        - WCHR
+        - WCHS
+
+    PassengerCategoryAdditional:
+      type: string
+      enum:
+        - MEDA
+        - OXYG
+        - LEGB
+        - LEGL
+        - LEGR
+        - WCMP
+        - WCBW
+        - WCBD
+        - WCLB
+        - WCOB
+        - SVAN
+        - ESAN
+
+    FlightPassengerAdditional:
+      type: object
+      required:
+        - id
+        - name
+        - category
+      properties:
+        id:
+          $ref: '#/components/schemas/Id'
+        name:
+          type: string
+          example: "Passenger LastName"
+        category:
+          $ref: '#/components/schemas/PassengerCategory'
+        additionalCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/PassengerCategoryAdditional'
+
+    FlightUpdate:
+      type: object
+      required:
+        - id
+      properties:
+        actualArrivalDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        actualDepartureDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        actualLandingDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        actualReadyForBoardingDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        actualTENDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        actualTakeoffDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        aidxStatus:
+          type: string
+          example: "ONB"
+        aircraft:
+          $ref: '#/components/schemas/AircraftRef'
+        aircraftTerminal:
+          type: string
+          example: "1"
+        aircraftType:
+          $ref: '#/components/schemas/AircraftTypeRef'
+        airline:
+          $ref: '#/components/schemas/AirlineRef'
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightAlert'
+        aodbInternalStatus:
+          type: string
+          example: "400"
+        belts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Belt'
+        cabinCrewNumber:
+          type: integer
+          example: 3
+        cancellationDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        crewNumber:
+          type: integer
+          example: 5
+        delayTime:
+          type: integer
+          example: 600
+        estimatedArrivalDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        estimatedDepartureDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        estimatedLandingDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        estimatedReadyForBoardingDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        estimatedTENDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        estimatedTakeoffDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        flightNumber:
+          type: string
+          example: "548"
+        flightSpecification:
+          $ref: '#/components/schemas/FlightSpecificationUpdate'
+        gateNames:
+          type: array
+          items:
+            type: string
+        handlingAgents:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightHandlingAgent'
+        id:
+          $ref: '#/components/schemas/Id'
+        isReadyParkingSpot:
+          type: boolean
+        lastUpdateDateTime:
+          $ref: '#/components/schemas/MomentInTime'
+        linkedFlight:
+          $ref: '#/components/schemas/FlightRef'
+        loadInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightLoadInfo'
+        numId:
+          type: string
+          example: "40176938187"
+        operationalTime:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightOperationalTime'
+        originDate:
+          $ref: '#/components/schemas/MomentInTime'
+        parkingSpot:
+          $ref: '#/components/schemas/ParkingSpotRef'
+        passengerAdditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightPassengerAdditional'
+        passengerCountInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlightPassengerInfo'
+        paymentMethod:
+          type: string
+          example: "C"
+        readyForBilling:
+          $ref: '#/components/schemas/FlightBillingStatus'
+        runway:
+          type: string
+          example: "28L"
+        scheduledArrivalDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        scheduledDepartureDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        scheduledLandingDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        scheduledReadyForBoardingDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        scheduledTENDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        scheduledTakeoffDatetime:
+          $ref: '#/components/schemas/MomentInTime'
+        serviceType:
+          $ref: '#/components/schemas/FlightServiceTypeRef'
+        specialEmphasis:
+          $ref: '#/components/schemas/SpecialEmphasisRef'
+        trafficType:
+          $ref: '#/components/schemas/FlightTrafficType'
+
+    CommonHeaderSet:
+      description: Common message headers
+      type: object
+      required:
+        - version
+        - producer
+        - producerVersion
+      properties:
+        version:
+          description: Data model specification version
+          $ref: '#/components/schemas/Version'
+        producer:
+          description: Publisher application module name
+          $ref: '#/components/schemas/ProducerName'
+        producerVersion:
+          description: Publisher version
+          $ref: '#/components/schemas/Version'

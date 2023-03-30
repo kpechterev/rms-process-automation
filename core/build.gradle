@@ -1,0 +1,170 @@
+plugins {
+    id 'java'
+    id 'com.bmuschko.docker-spring-boot-application'
+    id 'org.springframework.boot' version '2.7.5'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'com.apollographql.apollo' version '2.5.14'
+}
+
+group = 'com.pulkovo.rms'
+sourceCompatibility = '17'
+
+springBoot {
+    buildInfo()
+}
+
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    if (registryUrl) {
+        maven {
+            allowInsecureProtocol true
+            url "${registryUrl}/repository/com.pulkovo.rms.services.releases"
+        }
+        maven {
+            allowInsecureProtocol true
+            url "${registryUrl}/repository/com.pulkovo.rms.services.snapshots"
+        }
+    }
+}
+
+
+
+dependencies {
+
+    //region spring
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'io.github.openfeign:feign-micrometer:12.1'
+    implementation 'io.github.openfeign:feign-okhttp:12.1'
+    implementation 'io.github.openfeign:feign-jaxb:12.1'
+    implementation 'io.github.openfeign:feign-core:12.1'
+/*
+    implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
+*/
+    implementation 'org.springframework.retry:spring-retry:2.0.0'
+
+    implementation 'io.zipkin.brave:brave:5.13.0'
+    //endregion
+
+    //region GraphQL
+    implementation 'com.graphql-java:graphql-java-extended-scalars:19.1'
+    //endregion
+
+
+   //region apollo
+    implementation 'com.apollographql.apollo:apollo-runtime:2.5.14'
+    //endregion
+
+
+    //region monitoring
+    implementation 'io.micrometer:micrometer-registry-prometheus:1.10.2'
+    //endregion
+
+    //region validation
+    implementation 'org.hibernate:hibernate-validator:8.0.0.Final'
+    //endregion
+
+    //region utilities
+    annotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
+    implementation "org.projectlombok:lombok:${project.ext.lombokVersion}"
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+    runtimeOnly 'com.fasterxml.jackson.module:jackson-module-kotlin:2.14.0'
+    implementation 'com.google.guava:guava:31.1-jre'
+    //endregion
+
+
+
+    //region test
+    testAnnotationProcessor "org.projectlombok:lombok:${project.ext.lombokVersion}"
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        exclude group: 'com.vaadin.external.google', module: 'android-json'
+    }
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+/*
+    testImplementation 'junit:junit:4.13.2'
+*/
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+    testImplementation("org.springframework.cloud:spring-cloud-stream") {
+        artifact {
+            name = "spring-cloud-stream"
+            extension = "jar"
+            type = "test-jar"
+            classifier = "test-binder"
+        }
+    }
+    testImplementation 'org.springframework.cloud:spring-cloud-contract-wiremock'
+    //endregion
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${project.ext.springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        showStandardStreams = true
+        events "passed", "skipped", "failed"
+    }
+    maxHeapSize = "1g"
+    jvmArgs "-XX:MaxMetaspaceSize=512m"
+}
+
+apollo {
+    generateKotlinModels.set(false)
+    packageName.set("graphql.com.pulkovo.rms.processautomation")
+    customTypeMapping = ["DateTime": "java.time.OffsetDateTime"]
+}
+
+
+docker {
+    String containerImageName = (registryUrl ? "${new URI(registryUrl).getHost()}/${rootProject.name}" : rootProject.name).toString()
+    List<String> imageTags = []
+    imageTags.add("${containerImageName}:${project.version}")
+
+    if (project.version.endsWith('SNAPSHOT')) {
+        imageTags.add("${containerImageName}:latest")
+    }
+
+    springBootApplication {
+        baseImage = project.ext.baseContainerImage
+        ports = [8080]
+        images = imageTags
+    }
+}
+
+task image(
+        group: 'build',
+        dependsOn: dockerBuildImage,
+        description: 'Container image build alias'
+)
+
+task pushImages(
+        group: 'container',
+        dependsOn: dockerPushImage,
+        description: 'Push images into registry alias'
+)
+
+if (project.properties.containsKey('pushImage')) {
+    image.dependsOn 'pushImages'
+}
+

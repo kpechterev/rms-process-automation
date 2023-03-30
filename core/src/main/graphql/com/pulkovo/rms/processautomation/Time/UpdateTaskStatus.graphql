@@ -1,0 +1,6 @@
+mutation UpdateTaskStatus($id : ID!){
+    update: changeTaskStatus(id: $id ,nextStatus: PUBLISHED) {
+        id
+        status
+    }
+}

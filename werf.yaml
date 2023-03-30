@@ -1,0 +1,25 @@
+configVersion: 1
+project: process-automation
+
+---
+image: test
+from: docker.ncg-swdevelopment.ru/gradle:7-jdk17-focal
+docker:
+  WORKDIR: /app
+git:
+- add: /
+  to: /app
+  excludePaths:
+  - .gitlab-ci.yml
+  - werf.yaml
+  - .helm
+  - README.md
+
+---
+image: base
+fromImage: test
+shell:
+  setup:
+  - cd /app
+  - gradle assemble
+
